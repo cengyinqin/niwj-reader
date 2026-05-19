@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.pyc
+__pycache__/
+.DS_Store
+*.log
+
+# Android build outputs and generated assets
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/captures/
+android/app/src/main/assets/public/
+*.apk
+*.aab

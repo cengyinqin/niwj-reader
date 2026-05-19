@@ -1,0 +1,477 @@
+:root {
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --text: #3d3226;
+  --text-secondary: #8b7e6a;
+  --accent: #7a9a7e;
+  --accent-dim: #5c7a60;
+  --border: #e8e3db;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --radius: 10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+[data-theme='dark'] {
+  --bg: #1a1a1a;
+  --surface: #252525;
+  --text: #d4c8b8;
+  --text-secondary: #8b8b8b;
+  --accent: #8db896;
+  --accent-dim: #6b9a74;
+  --border: #333333;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='sepia'] {
+  --bg: #f5f0e8;
+  --surface: #faf5ed;
+  --text: #5c4b3a;
+  --text-secondary: #9b8b7a;
+  --accent: #9b7a5c;
+  --accent-dim: #7a5c3e;
+  --border: #e0d5c5;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ────────────────────────────── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-top: calc(12px + var(--safe-top));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.app-header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Back button ────────────────────────── */
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+.btn-back:active {
+  background: var(--border);
+}
+
+/* ── List views ─────────────────────────── */
+.list-container {
+  padding: 16px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 16px 0 8px;
+}
+
+.card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s;
+  box-shadow: var(--shadow);
+}
+.card:active {
+  opacity: 0.8;
+  box-shadow: none;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.card-meta {
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 6px;
+}
+
+/* ── Chapter list ───────────────────────── */
+.chapter-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.1s;
+}
+.chapter-item:active {
+  background: var(--border);
+}
+
+.chapter-num {
+  font-size: 12px;
+  color: var(--text-secondary);
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.chapter-title {
+  font-size: 15px;
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* ── Reader ─────────────────────────────── */
+.reader-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.reader-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 20px 40px;
+  scroll-behavior: smooth;
+}
+
+.reader-text {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", Georgia, serif;
+  line-height: 1.9;
+  text-align: justify;
+  word-break: break-word;
+}
+
+.reader-text h2 {
+  font-size: 1.4em;
+  font-weight: 700;
+  margin: 1.5em 0 0.8em;
+  text-align: center;
+}
+
+.reader-text p {
+  margin: 0.8em 0;
+  text-indent: 2em;
+}
+
+/* ── Reader controls overlay ────────────── */
+.reader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.reader-overlay.visible {
+  pointer-events: auto;
+}
+
+.reader-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-top: calc(12px + var(--safe-top));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: all 0.25s ease;
+}
+
+.reader-overlay.visible .reader-top-bar {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reader-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + var(--safe-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 0.25s ease;
+}
+
+.reader-overlay.visible .reader-bottom-bar {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reader-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.reader-control-btn:active {
+  background: var(--border);
+}
+.reader-control-btn.active {
+  color: var(--accent);
+}
+
+/* Theme/font size indicators */
+.theme-group {
+  display: flex;
+  gap: 4px;
+  background: var(--bg);
+  border-radius: 20px;
+  padding: 3px;
+}
+
+.theme-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-secondary);
+}
+.theme-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.font-label {
+  font-size: 14px;
+  color: var(--text);
+  min-width: 36px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Progress bar */
+.reader-progress {
+  height: 3px;
+  background: var(--accent);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transition: width 0.3s;
+  z-index: 1;
+}
+
+/* Chapter nav footer */
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 20px 40px;
+}
+
+.chapter-nav-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+.chapter-nav-btn:active {
+  opacity: 0.7;
+}
+
+/* ── Continue reading card ──────────────── */
+.continue-card {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.continue-card:active {
+  opacity: 0.9;
+}
+.continue-card .card-title {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+.continue-card .card-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  margin-top: 2px;
+}
+.continue-card .card-meta {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* ── Empty state ────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.empty-state .icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+/* ── Loading ────────────────────────────── */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* ── Series hero cards ───────────────────── */
+.series-hero {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.series-hero::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent);
+}
+.series-hero:active {
+  opacity: 0.8;
+}
+.series-hero-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.series-hero-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.series-hero-count {
+  font-size: 12px;
+  color: var(--accent-dim);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* ── Book info in reader header ──────────── */
+.reader-book-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

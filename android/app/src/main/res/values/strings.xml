@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">倪柝声文集</string>
+    <string name="title_activity_main">倪柝声文集</string>
+    <string name="package_name">com.neebooks.niwj</string>
+    <string name="custom_url_scheme">com.neebooks.niwj</string>
+</resources>

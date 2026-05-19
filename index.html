@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#f5f0e8" />
+    <title>倪柝声文集</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "Noto Serif SC", "Source Han Serif SC", "Noto Sans SC", serif; }
+    </style>
+    <script>
+      // Apply saved theme before React loads to prevent flash
+      (function() {
+        try {
+          var raw = localStorage.getItem('niwj-reader-settings');
+          if (raw) {
+            var state = JSON.parse(raw);
+            var theme = state.state && state.state.theme;
+            if (theme && theme !== 'light') {
+              document.documentElement.setAttribute('data-theme', theme);
+            }
+          }
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

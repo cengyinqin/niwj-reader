@@ -24,6 +24,7 @@ export default function Reader() {
   const [bookData, setBookData] = useState<BookData | null>(null)
   const [bookMeta, setBookMeta] = useState<BookMeta | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [chapter, setChapter] = useState<ChapterData | null>(null)
   const [showControls, setShowControls] = useState(false)
   const [scrollPct, setScrollPct] = useState(0)
@@ -31,6 +32,16 @@ export default function Reader() {
   const contentRef = useRef<HTMLDivElement>(null)
   const [showScrollbar, setShowScrollbar] = useState(false)
   const scrollbarTimer = useRef<ReturnType<typeof setTimeout>>()
+  const [tapHint, setTapHint] = useState<'left' | 'right' | null>(null)
+  const tapHintTimer = useRef<ReturnType<typeof setTimeout>>()
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollbarTimer.current) clearTimeout(scrollbarTimer.current)
+      if (tapHintTimer.current) clearTimeout(tapHintTimer.current)
+    }
+  }, [])
 
   // Apply theme to document
   useEffect(() => {
@@ -40,6 +51,9 @@ export default function Reader() {
   // Fetch book data
   useEffect(() => {
     setLoading(true)
+    setError(null)
+    setBookData(null)
+    setBookMeta(null)
     Promise.all([
       fetchBook(sid, bidx),
       fetchIndex().then((idx) => {
@@ -50,8 +64,12 @@ export default function Reader() {
       .then(([data, meta]) => {
         setBookData(data)
         setBookMeta(meta)
+        if (!meta) setError('该书不存在')
       })
-      .catch(console.error)
+      .catch((e) => {
+        console.error(e)
+        setError('加载失败，请检查网络后重试')
+      })
       .finally(() => setLoading(false))
   }, [sid, bidx])
 
@@ -108,10 +126,16 @@ export default function Reader() {
       if (x > cx && x < cx + cw && y > 0 && y < h) {
         setShowControls((v) => !v)
       } else if (x <= cx && !showControls) {
-        // Left tap: prev chapter
+        // Left tap: prev chapter with feedback
+        setTapHint('left')
+        if (tapHintTimer.current) clearTimeout(tapHintTimer.current)
+        tapHintTimer.current = setTimeout(() => setTapHint(null), 300)
         goToChapter(cidx - 1)
       } else if (x >= cx + cw && !showControls) {
-        // Right tap: next chapter
+        // Right tap: next chapter with feedback
+        setTapHint('right')
+        if (tapHintTimer.current) clearTimeout(tapHintTimer.current)
+        tapHintTimer.current = setTimeout(() => setTapHint(null), 300)
         goToChapter(cidx + 1)
       }
     },
@@ -122,12 +146,6 @@ export default function Reader() {
     if (!bookData) return
     if (targetIdx < 0 || targetIdx >= bookData.chapters.length) return
     navigate(`/reader/${sid}/${bidx}/${targetIdx}`)
-  }
-
-  const cycleTheme = () => {
-    const themes: Theme[] = ['light', 'dark', 'sepia']
-    const idx = themes.indexOf(theme)
-    setTheme(themes[(idx + 1) % themes.length])
   }
 
   const cycleFontSize = () => {
@@ -144,11 +162,40 @@ export default function Reader() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="reader-container">
+        <div className="empty-state">
+          <div className="icon">!</div>
+          <p>{error}</p>
+          <button className="btn-back" onClick={() => navigate(-1)} style={{ marginTop: 16 }}>
+            返回
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!chapter) {
     return (
       <div className="reader-container">
         <div className="empty-state">
+          <div className="icon">[ ]</div>
           <p>章节不存在</p>
+          <button className="btn-back" onClick={() => navigate(-1)} style={{ marginTop: 16 }}>
+            返回
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!chapter.content || chapter.content.trim() === '') {
+    return (
+      <div className="reader-container">
+        <div className="empty-state">
+          <div className="icon">[ ]</div>
+          <p>本章暂无内容</p>
           <button className="btn-back" onClick={() => navigate(-1)} style={{ marginTop: 16 }}>
             返回
           </button>
@@ -223,6 +270,32 @@ export default function Reader() {
           style={{ height: `${Math.max(scrollPct * 100, 2)}%` }}
         />
       </div>
+
+      {/* Tap feedback hint */}
+      {tapHint && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '50%',
+            [tapHint === 'left' ? 'left' : 'right']: 16,
+            transform: 'translateY(-50%)',
+            background: 'var(--accent)',
+            color: 'var(--accent-text)',
+            width: 36,
+            height: 36,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 16,
+            zIndex: 5,
+            pointerEvents: 'none',
+            animation: 'tapPulse 0.3s ease-out',
+          }}
+        >
+          {tapHint === 'left' ? '←' : '→'}
+        </div>
+      )}
 
       {/* Content */}
       <div

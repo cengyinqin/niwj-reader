@@ -329,8 +329,16 @@ body {
 }
 .theme-btn.active {
   background: var(--surface);
-  color: var(--text);
+  color: var(--accent-dim);
+  font-weight: 700;
   box-shadow: var(--shadow);
+}
+
+/* ── Tap feedback animation ──────────────── */
+@keyframes tapPulse {
+  0% { opacity: 1; transform: translateY(-50%) scale(0.6); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.15); }
+  100% { opacity: 0; transform: translateY(-50%) scale(0.9); }
 }
 
 .font-label {

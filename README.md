@@ -6,12 +6,30 @@
 
 ## 功能
 
-- **沉浸式阅读** — 点击屏幕中间切换控制栏，左右边缘翻章
-- **三种主题** — 白天 / 夜间 / 护眼（sepia）
-- **四档字号** — 小(16px) · 中(18px) · 大(22px) · 特大(26px)
-- **阅读进度** — 自动保存，首页「继续阅读」快速接续
-- **全文离线** — 所有内容内置，无需网络
-- **跨平台** — 一套代码，H5 / Android / iOS 通用
+**阅读**
+- 沉浸式全屏阅读，点击中间切换控制栏，左右边缘翻章
+- 三种主题：白天 / 夜间 / 护眼（sepia）
+- 四档字号：小(16px) · 中(18px) · 大(22px) · 特大(26px)
+- 阅读进度自动保存，首页「继续阅读」快速接续
+- 右侧垂直滚动进度指示器
+
+**搜索**
+- 全局全文搜索，覆盖 1,325 章标题和内容
+- 关键词高亮，按 系列 → 书 → 章节 层级展示结果
+- 三层独立导航：搜索结果 → 书卷筛选 → 文本定位
+- 定位页「下一处/上一处」跳转，浮动按钮辅助
+- 📂 书卷选择器，仅展示含匹配结果的书名
+- 搜索不计入阅读进度和历史
+
+**统计与历史**
+- 阅读统计：累计时长、已读章节、连续天数、今日阅读
+- 阅读历史：最近 50 条按日期分组，点击续读
+- 阅读计时：页面可见时计时，后台自动暂停
+
+**导航**
+- 底部 Tab 栏：📚 文集 / 🔍 搜索 / 👤 我的
+- 阅读器全屏时自动隐藏 Tab
+- 「我的」页面集成设置：主题 / 字号调整
 
 ## 内容
 
@@ -50,35 +68,19 @@ n 22
 ### 本地构建
 
 ```bash
-# 1. 构建 web 资源
 npm run build
-
-# 2. 同步到 Android 项目
 npx cap sync android
-
-# 3. 用 Android Studio 打开并构建
-npx cap open android
-#   Build → Build Bundle(s) / APK(s) → Build APK(s)
-
-# 或命令行构建
 cd android && ./gradlew assembleDebug
-#   APK 输出: android/app/build/outputs/apk/debug/app-debug.apk
+# APK 输出: android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ### CI 自动构建（GitHub Actions）
 
-Push 到 `main` 分支自动触发 `.github/workflows/build-apk.yml`：
-
-1. 安装依赖 + Vite 构建
-2. Capacitor 同步资源
-3. Gradle 编译 APK
-4. 上传为 Actions artifact（保留 30 天）
-
-在仓库 **Actions** 页下载。
+Push 到 `main` 分支自动触发，在仓库 **Actions** 页下载 APK artifact（保留 30 天）。
 
 ## iOS 支持
 
-架构已预留 iOS 能力，需要 macOS 环境执行：
+需要 macOS 环境：
 
 ```bash
 npx cap add ios
@@ -95,12 +97,17 @@ niwj-reader/
 │   │   ├── Home.tsx           # 首页：系列列表 + 继续阅读
 │   │   ├── BookList.tsx       # 某系列的书目列表
 │   │   ├── ChapterList.tsx    # 某书的章节目录
-│   │   └── Reader.tsx         # 全屏阅读器
-│   ├── store/settings.ts      # Zustand：主题/字号/进度
+│   │   ├── Reader.tsx         # 全屏阅读器（计时/进度/历史）
+│   │   ├── Search.tsx         # 全局搜索（L1结果→L2筛选→L3定位）
+│   │   └── Profile.tsx        # 我的（统计 + 历史 + 设置）
+│   ├── store/
+│   │   ├── settings.ts        # 主题/字号/阅读进度
+│   │   └── reading.ts         # 阅读统计/历史记录
 │   ├── hooks/useBook.ts       # 数据加载与缓存
 │   └── styles/app.css         # 全局样式
 ├── public/data/
 │   ├── index.json             # 目录索引 (~219KB)
+│   ├── search-index.json      # 搜索索引 (~5.4MB)
 │   └── books/                 # 62 本书 JSON (~24MB)
 ├── android/                   # Capacitor Android 原生项目
 ├── capacitor.config.ts        # Capacitor 配置
@@ -109,14 +116,14 @@ niwj-reader/
 
 ## 数据更新
 
-数据由项目根目录 `crawler.py` 爬取生成。如需更新内容：
-
 ```bash
+# 1. 爬取最新内容
 python3 crawler.py
+
+# 2. 重建索引和搜索数据
 python3 -c "
 import json, os, re
-# Rebuild index and copy book files
-# See crawler.py for details
+# 重新生成 public/data/index.json 和 search-index.json
 "
 ```
 

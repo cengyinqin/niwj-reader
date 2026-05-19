@@ -1,9 +1,34 @@
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import BookList from './pages/BookList'
 import ChapterList from './pages/ChapterList'
 import Reader from './pages/Reader'
+import Search from './pages/Search'
+import Profile from './pages/Profile'
 import './styles/app.css'
+
+// Tab bar: hide on Reader page
+function TabBar() {
+  const location = useLocation()
+  if (location.pathname.startsWith('/reader')) return null
+
+  return (
+    <nav className="tab-bar">
+      <NavLink to="/" end className="tab-item">
+        <span className="tab-icon">📚</span>
+        <span className="tab-label">文集</span>
+      </NavLink>
+      <NavLink to="/search" className="tab-item">
+        <span className="tab-icon">🔍</span>
+        <span className="tab-label">搜索</span>
+      </NavLink>
+      <NavLink to="/profile" className="tab-item">
+        <span className="tab-icon">👤</span>
+        <span className="tab-label">我的</span>
+      </NavLink>
+    </nav>
+  )
+}
 
 export default function App() {
   return (
@@ -13,7 +38,10 @@ export default function App() {
         <Route path="/series/:seriesId" element={<BookList />} />
         <Route path="/book/:seriesId/:bookIdx" element={<ChapterList />} />
         <Route path="/reader/:seriesId/:bookIdx/:chapterIdx" element={<Reader />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
+      <TabBar />
     </HashRouter>
   )
 }

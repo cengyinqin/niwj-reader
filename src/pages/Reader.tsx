@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { fetchBook, fetchIndex, BookData, ChapterData, BookMeta } from '../hooks/useBook'
 import { useSettings, getFontSizePx, Theme, FontSize } from '../store/settings'
+import { useReading } from '../store/reading'
 
 export default function Reader() {
   const { seriesId, bookIdx, chapterIdx } = useParams<{
@@ -10,6 +11,8 @@ export default function Reader() {
     chapterIdx: string
   }>()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const fromSearch = searchParams.get('from') === 'search'
 
   const sid = parseInt(seriesId || '1', 10)
   const bidx = parseInt(bookIdx || '0', 10)
@@ -20,9 +23,13 @@ export default function Reader() {
   const setTheme = useSettings((s) => s.setTheme)
   const setFontSize = useSettings((s) => s.setFontSize)
   const saveProgress = useSettings((s) => s.saveProgress)
+  const addReadingTime = useReading((s) => s.addReadingTime)
+  const markChapterRead = useReading((s) => s.markChapterRead)
+  const addToHistory = useReading((s) => s.addToHistory)
 
   const [bookData, setBookData] = useState<BookData | null>(null)
   const [bookMeta, setBookMeta] = useState<BookMeta | null>(null)
+  const [seriesLabel, setSeriesLabel] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [chapter, setChapter] = useState<ChapterData | null>(null)
@@ -58,6 +65,7 @@ export default function Reader() {
       fetchBook(sid, bidx),
       fetchIndex().then((idx) => {
         const s = idx.series.find((x) => x.id === sid)
+        if (s) setSeriesLabel(s.label)
         return s?.books[bidx] || null
       }),
     ])
@@ -91,6 +99,44 @@ export default function Reader() {
       saveProgress(sid, bidx, cidx, scrollPct)
     }
   }, [sid, bidx, cidx, scrollPct, chapter, loading, saveProgress])
+
+  // Mark chapter read + add to history (skip if from search)
+  useEffect(() => {
+    if (chapter && !loading && bookMeta && !fromSearch) {
+      markChapterRead(sid, bidx, cidx)
+      addToHistory({
+        seriesId: sid,
+        bookIdx: bidx,
+        chapterIdx: cidx,
+        chapterTitle: chapter.title,
+        bookTitle: bookMeta.title,
+        seriesLabel: seriesLabel,
+        timestamp: Date.now(),
+      })
+    }
+  }, [sid, bidx, cidx, chapter, loading, fromSearch])
+
+  // Reading timer: track active reading time
+  useEffect(() => {
+    if (loading || fromSearch) return
+    let seconds = 0
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        seconds++
+        // Batch save every 30s to avoid excessive writes
+        if (seconds % 30 === 0) {
+          addReadingTime(30)
+        }
+      }
+    }, 1000)
+
+    return () => {
+      // Save remaining seconds on unmount
+      const remaining = seconds % 30
+      if (remaining > 0) addReadingTime(remaining)
+      clearInterval(interval)
+    }
+  }, [sid, bidx, cidx, loading, fromSearch, addReadingTime])
 
   // Scroll tracking, dismiss controls, scrollbar visibility
   const handleScroll = useCallback(() => {

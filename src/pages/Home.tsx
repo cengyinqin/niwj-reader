@@ -61,11 +61,13 @@ export default function Home() {
               to={`/reader/${continueInfo.series.id}/${continueInfo.bookIdx}/${continueInfo.chapterIdx}`}
               className="continue-card"
             >
-              <div className="card-title">继续阅读</div>
-              <div className="card-subtitle">
-                {continueInfo.series.label} · {continueInfo.series.books[continueInfo.bookIdx]?.title}
+              <div className="continue-body">
+                <div className="continue-label">继续阅读</div>
+                <div className="continue-book">
+                  {continueInfo.series.label} · {continueInfo.series.books[continueInfo.bookIdx]?.title}
+                </div>
+                <div className="continue-chapter">{continueInfo.chapterTitle}</div>
               </div>
-              <div className="card-meta">{continueInfo.chapterTitle}</div>
             </Link>
           )}
 

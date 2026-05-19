@@ -29,6 +29,8 @@ export default function Reader() {
   const [scrollPct, setScrollPct] = useState(0)
 
   const contentRef = useRef<HTMLDivElement>(null)
+  const [showScrollbar, setShowScrollbar] = useState(false)
+  const scrollbarTimer = useRef<ReturnType<typeof setTimeout>>()
 
   // Apply theme to document
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function Reader() {
     }
   }, [sid, bidx, cidx, scrollPct, chapter, loading, saveProgress])
 
-  // Scroll tracking, dismiss controls
+  // Scroll tracking, dismiss controls, scrollbar visibility
   const handleScroll = useCallback(() => {
     const el = contentRef.current
     if (!el) return
@@ -84,6 +86,10 @@ export default function Reader() {
     }
     // Dismiss controls when scrolling
     if (showControls) setShowControls(false)
+    // Show scrollbar briefly
+    setShowScrollbar(true)
+    if (scrollbarTimer.current) clearTimeout(scrollbarTimer.current)
+    scrollbarTimer.current = setTimeout(() => setShowScrollbar(false), 1200)
   }, [showControls])
 
   // Toggle controls on center tap
@@ -209,6 +215,14 @@ export default function Reader() {
 
       {/* Progress bar */}
       <div className="reader-progress" style={{ width: `${scrollPct * 100}%` }} />
+
+      {/* Vertical scrollbar */}
+      <div className={`reader-scrollbar ${showScrollbar ? 'visible' : ''}`}>
+        <div
+          className="reader-scrollbar-thumb"
+          style={{ height: `${Math.max(scrollPct * 100, 2)}%` }}
+        />
+      </div>
 
       {/* Content */}
       <div

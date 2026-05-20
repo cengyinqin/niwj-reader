@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { fetchIndex, fetchBook, IndexData } from '../hooks/useBook'
 import { IconFolder, IconSearch, IconX, IconArrowLeft, IconArrowRight, IconArrowUp, IconArrowDown } from '../components/Icons'
+import { App } from '@capacitor/app'
 
 // ── Types ──────────────────────────────────────────────
 interface SearchEntry {
@@ -45,9 +46,59 @@ export default function Search() {
   const [pickerLevel, setPickerLevel] = useState<'series' | 'books'>('series')
   const [pickerSeriesId, setPickerSeriesId] = useState(0)
   const [pickerBooks, setPickerBooks] = useState<PickerBook[]>([])
+  const levelRef = useRef(level)
+  levelRef.current = level
+  const l2Ref = useRef(l2)
+  l2Ref.current = l2
 
   // ── Load index ────────────────────────────────────────
   useEffect(() => { fetchIndex().then(setIndex) }, [])
+
+  // ── System back button interception ──────────────────
+  useEffect(() => {
+    // Push state when entering deeper level so popstate fires
+    if (level !== 'L1') {
+      window.history.pushState({ searchLevel: level }, '')
+    }
+    // When returning to L1, push a clean state (only if we had pushed before)
+    if (level === 'L1' && window.history.state?.searchLevel && window.history.state.searchLevel !== 'L1') {
+      window.history.pushState({ searchLevel: 'L1' }, '')
+    }
+  }, [level])
+
+  // Handle popstate (browser back) and Capacitor back button
+  useEffect(() => {
+    const handleBack = () => {
+      const cur = levelRef.current
+      if (cur === 'L3') {
+        if (l2Ref.current) setLevel('L2')
+        else setLevel('L1')
+      } else if (cur === 'L2') {
+        setLevel('L1')
+        setL2(null)
+      }
+      // L1: let default behavior happen
+    }
+
+    window.addEventListener('popstate', handleBack)
+
+    // Capacitor native back button
+    let backListener: any = null
+    try {
+      backListener = App.addListener('backButton', ({ canGoBack }) => {
+        if (levelRef.current !== 'L1') {
+          handleBack()
+        } else if (!canGoBack) {
+          App.exitApp()
+        }
+      })
+    } catch {}
+
+    return () => {
+      window.removeEventListener('popstate', handleBack)
+      if (backListener?.remove) backListener.remove()
+    }
+  }, []) // Mount once, uses refs for current state
 
   const loadSearchData = useCallback(() => {
     if (!searchData && !searchLoading) {

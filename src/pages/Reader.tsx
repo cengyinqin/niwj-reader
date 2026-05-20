@@ -40,14 +40,11 @@ export default function Reader() {
   const contentRef = useRef<HTMLDivElement>(null)
   const [showScrollbar, setShowScrollbar] = useState(false)
   const scrollbarTimer = useRef<ReturnType<typeof setTimeout>>()
-  const [tapHint, setTapHint] = useState<'left' | 'right' | null>(null)
-  const tapHintTimer = useRef<ReturnType<typeof setTimeout>>()
 
   // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (scrollbarTimer.current) clearTimeout(scrollbarTimer.current)
-      if (tapHintTimer.current) clearTimeout(tapHintTimer.current)
     }
   }, [])
 
@@ -154,43 +151,10 @@ export default function Reader() {
     scrollbarTimer.current = setTimeout(() => setShowScrollbar(false), 1200)
   }, [showControls])
 
-  // Toggle controls on center tap
-  const handleContentClick = useCallback(
-    (e: React.MouseEvent) => {
-      const el = contentRef.current
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-      const w = rect.width
-      const h = rect.height
-      // Center zone: middle 40% horizontally, full height
-      const cx = w * 0.3
-      const cw = w * 0.4
-      if (x > cx && x < cx + cw && y > 0 && y < h) {
-        setShowControls((v) => !v)
-      } else if (x <= cx && !showControls) {
-        // Left tap: prev chapter with feedback
-        setTapHint('left')
-        if (tapHintTimer.current) clearTimeout(tapHintTimer.current)
-        tapHintTimer.current = setTimeout(() => setTapHint(null), 300)
-        goToChapter(cidx - 1)
-      } else if (x >= cx + cw && !showControls) {
-        // Right tap: next chapter with feedback
-        setTapHint('right')
-        if (tapHintTimer.current) clearTimeout(tapHintTimer.current)
-        tapHintTimer.current = setTimeout(() => setTapHint(null), 300)
-        goToChapter(cidx + 1)
-      }
-    },
-    [cidx, bookData, showControls]
-  )
-
-  const goToChapter = (targetIdx: number) => {
-    if (!bookData) return
-    if (targetIdx < 0 || targetIdx >= bookData.chapters.length) return
-    navigate(`/reader/${sid}/${bidx}/${targetIdx}`)
-  }
+  // Toggle controls on tap
+  const handleContentClick = useCallback(() => {
+    setShowControls((v) => !v)
+  }, [])
 
   const cycleFontSize = () => {
     const sizes: FontSize[] = ['small', 'medium', 'large', 'xlarge']
@@ -314,32 +278,6 @@ export default function Reader() {
           style={{ height: `${Math.max(scrollPct * 100, 2)}%` }}
         />
       </div>
-
-      {/* Tap feedback hint */}
-      {tapHint && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '50%',
-            [tapHint === 'left' ? 'left' : 'right']: 16,
-            transform: 'translateY(-50%)',
-            background: 'var(--accent)',
-            color: 'var(--accent-text)',
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 16,
-            zIndex: 5,
-            pointerEvents: 'none',
-            animation: 'tapPulse 0.3s ease-out',
-          }}
-        >
-          {tapHint === 'left' ? <IconArrowLeft size={16} /> : <IconArrowRight size={16} />}
-        </div>
-      )}
 
       {/* Content */}
       <div

@@ -329,13 +329,6 @@ body {
   box-shadow: var(--shadow);
 }
 
-/* ── Tap feedback animation ──────────────── */
-@keyframes tapPulse {
-  0% { opacity: 1; transform: translateY(-50%) scale(0.6); }
-  50% { opacity: 1; transform: translateY(-50%) scale(1.15); }
-  100% { opacity: 0; transform: translateY(-50%) scale(0.9); }
-}
-
 .font-label {
   font-size: 14px;
   color: var(--text);

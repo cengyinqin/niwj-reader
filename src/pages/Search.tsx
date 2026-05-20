@@ -143,8 +143,12 @@ export default function Search() {
   }
 
   const goBack = () => {
-    if (level === 'L3') setLevel('L2')
-    else if (level === 'L2') { setLevel('L1'); setL2(null) }
+    if (level === 'L3') {
+      if (l2) setLevel('L2')
+      else setLevel('L1')
+    } else if (level === 'L2') {
+      setLevel('L1'); setL2(null)
+    }
   }
 
   // ── Picker: only show books with results ──────────────

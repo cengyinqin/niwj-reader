@@ -354,7 +354,7 @@ function TextLocator({ content, keyword, loading }: { content: string; keyword: 
   const markRefs = useRef<(HTMLElement | null)[]>([])
   const currentRef = useRef(0)
   const [currentMatch, setCurrentMatch] = useState(0)
-  const [ready, setReady] = useState(false)
+  const renderId = useRef(0)
 
   // Paragraphs + match count
   const { paragraphs, matchCount } = useMemo(() => {
@@ -371,31 +371,31 @@ function TextLocator({ content, keyword, loading }: { content: string; keyword: 
     return { paragraphs: lines, matchCount: count }
   }, [content, keyword])
 
-  // Reset when content changes
+  // On content/keyword change: bump renderId to force HighlightedText remount
+  // and reset match tracking. Do NOT clear refs here — let the remount do it.
   useEffect(() => {
-    markRefs.current = []
+    renderId.current++
     currentRef.current = 0
     setCurrentMatch(0)
-    setReady(false)
   }, [content, keyword])
 
-  // After render, mark refs are populated → set ready
+  // Auto-scroll to first match after DOM is painted with new refs
   useEffect(() => {
-    if (matchCount > 0 && markRefs.current.length > 0 && !ready) {
-      setReady(true)
-    }
-  }, [matchCount, ready])
-
-  // Auto-scroll to first match after ready
-  useEffect(() => {
-    if (ready && matchCount > 0) {
-      const el = markRefs.current[0]
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        flash(el)
-      }
-    }
-  }, [ready, matchCount])
+    if (matchCount === 0) return
+    const id = renderId.current
+    // Wait for browser to paint: rAF fires before paint, double-rAF fires after
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // Guard against stale effect from previous render
+        if (id !== renderId.current) return
+        const el = markRefs.current[0]
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          flash(el)
+        }
+      })
+    })
+  }, [content, keyword, matchCount])
 
   const scrollToMatch = (index: number) => {
     const el = markRefs.current[index]
@@ -427,7 +427,12 @@ function TextLocator({ content, keyword, loading }: { content: string; keyword: 
         {matchCount === 0 && !keyword.trim() && paragraphs.map((p, i) => <p key={i} className="locator-p">{p}</p>)}
         {matchCount === 0 && keyword.trim() && <div className="empty-state"><p>本章未找到「{keyword}」</p></div>}
         {matchCount > 0 && (
-          <HighlightedText paragraphs={paragraphs} keyword={keyword} markRefs={markRefs} />
+          <HighlightedText
+            key={renderId.current}
+            paragraphs={paragraphs}
+            keyword={keyword}
+            markRefs={markRefs}
+          />
         )}
       </div>
 

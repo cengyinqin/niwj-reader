@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { HashRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import BookList from './pages/BookList'
@@ -5,7 +6,17 @@ import ChapterList from './pages/ChapterList'
 import Reader from './pages/Reader'
 import Search from './pages/Search'
 import Profile from './pages/Profile'
+import { useSettings } from './store/settings'
 import './styles/app.css'
+
+// ── Global theme sync ──────────────────────────────────
+function ThemeSync() {
+  const theme = useSettings((s) => s.theme)
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
+  return null
+}
 
 // Tab bar: hide on Reader page
 function TabBar() {
@@ -33,6 +44,7 @@ function TabBar() {
 export default function App() {
   return (
     <HashRouter>
+      <ThemeSync />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/series/:seriesId" element={<BookList />} />

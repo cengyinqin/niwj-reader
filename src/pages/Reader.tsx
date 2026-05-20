@@ -50,11 +50,6 @@ export default function Reader() {
     }
   }, [])
 
-  // Apply theme to document
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-  }, [theme])
-
   // Fetch book data
   useEffect(() => {
     setLoading(true)

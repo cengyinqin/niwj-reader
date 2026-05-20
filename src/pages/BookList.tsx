@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { fetchIndex, SeriesMeta, BookMeta } from '../hooks/useBook'
+import { IconArrowLeft } from '../components/Icons'
 
 export default function BookList() {
   const { seriesId } = useParams<{ seriesId: string }>()
@@ -32,7 +33,7 @@ export default function BookList() {
     <div className="app-shell">
       <div className="app-header">
         <button className="btn-back" onClick={() => navigate('/')} aria-label="返回">
-          ←
+          <IconArrowLeft size={18} />
         </button>
         <h1>{series.label}</h1>
       </div>

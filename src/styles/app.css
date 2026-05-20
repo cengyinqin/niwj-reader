@@ -107,7 +107,6 @@ body {
   background: none;
   color: var(--text);
   cursor: pointer;
-  font-size: 20px;
   flex-shrink: 0;
   border-radius: 50%;
 }
@@ -427,10 +426,14 @@ body {
   overflow: hidden;
 }
 .continue-card::after {
-  content: '▶';
-  font-size: 14px;
-  color: var(--accent-text);
-  opacity: 0.7;
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--accent-text);
+  border-bottom: 1.5px solid var(--accent-text);
+  transform: rotate(-45deg);
+  opacity: 0.6;
   margin-left: 8px;
   flex-shrink: 0;
 }
@@ -479,9 +482,12 @@ body {
   text-align: center;
 }
 .empty-state .icon {
-  font-size: 48px;
   margin-bottom: 16px;
-  opacity: 0.5;
+  opacity: 0.4;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ── Loading ────────────────────────────── */
@@ -579,8 +585,7 @@ body {
   color: var(--accent-dim);
 }
 .tab-icon {
-  font-size: 20px;
-  line-height: 1;
+  /* SVG icons via children */
 }
 
 /* Space for tab bar on pages that show it */
@@ -604,9 +609,11 @@ body {
 }
 
 .search-icon {
-  font-size: 14px;
   flex-shrink: 0;
-  opacity: 0.5;
+  opacity: 0.45;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
@@ -896,9 +903,9 @@ body {
   border: none;
   background: var(--bg);
   border-radius: 10px;
-  font-size: 16px;
   cursor: pointer;
   flex-shrink: 0;
+  color: var(--text);
 }
 .picker-btn:active {
   opacity: 0.7;

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { fetchIndex, fetchBook, IndexData } from '../hooks/useBook'
+import { IconFolder, IconSearch, IconX, IconArrowLeft, IconArrowRight, IconArrowUp, IconArrowDown } from '../components/Icons'
 
 // ── Types ──────────────────────────────────────────────
 interface SearchEntry {
@@ -193,9 +194,9 @@ export default function Search() {
       {/* Header */}
       {level === 'L1' && (
         <div className="app-header search-header">
-          <button className="picker-btn" onClick={openPicker}>📂</button>
+          <button className="picker-btn" onClick={openPicker}><IconFolder size={18} /></button>
           <div className="search-input-wrap">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon"><IconSearch size={16} /></span>
             <input
               className="search-input"
               type="text"
@@ -205,14 +206,14 @@ export default function Search() {
               onFocus={loadSearchData}
               autoFocus
             />
-            {query && <button className="search-clear" onClick={() => setQuery('')}>✕</button>}
+            {query && <button className="search-clear" onClick={() => setQuery('')}><IconX size={14} /></button>}
           </div>
         </div>
       )}
 
       {(level === 'L2' || level === 'L3') && (
         <div className="app-header">
-          <button className="btn-back" onClick={goBack}>←</button>
+          <button className="btn-back" onClick={goBack}><IconArrowLeft size={18} /></button>
           <h1>{level === 'L3' ? l3?.chapterTitle : l2?.bookTitle}</h1>
         </div>
       )}
@@ -226,7 +227,7 @@ export default function Search() {
 
             {!searchData && !searchLoading && (
               <div className="empty-state">
-                <div className="icon">🔍</div>
+                <div className="icon"><IconSearch size={36} /></div>
                 <p>输入关键词搜索章节标题和内容</p>
               </div>
             )}
@@ -265,7 +266,7 @@ export default function Search() {
                     ))}
                     {g.entries.length > 5 && (
                       <button className="search-more-btn" onClick={() => goL2(g.seriesId, g.bookIdx, g.bookTitle)}>
-                        查看全部 {g.entries.length} 条 →
+                        查看全部 {g.entries.length} 条 <IconArrowRight size={14} />
                       </button>
                     )}
                   </div>
@@ -417,9 +418,9 @@ function TextLocator({ content, keyword, loading }: { content: string; keyword: 
     <div className="locator-container">
       {matchCount > 0 && (
         <div className="locator-bar">
-          <button className="locator-nav-btn" onClick={goPrev}>↑</button>
+          <button className="locator-nav-btn" onClick={goPrev}><IconArrowUp size={14} /></button>
           <span className="locator-counter">{currentMatch + 1} / {matchCount}</span>
-          <button className="locator-nav-btn" onClick={goNext}>↓ 下一处</button>
+          <button className="locator-nav-btn" onClick={goNext}><IconArrowDown size={14} /> 下一处</button>
         </div>
       )}
 
@@ -438,9 +439,9 @@ function TextLocator({ content, keyword, loading }: { content: string; keyword: 
 
       {matchCount > 1 && (
         <div className="locator-fab">
-          <button className="locator-fab-btn" onClick={goPrev}>↑</button>
+          <button className="locator-fab-btn" onClick={goPrev}><IconArrowUp size={14} /></button>
           <span className="locator-fab-count">{currentMatch + 1}/{matchCount}</span>
-          <button className="locator-fab-btn" onClick={goNext}>↓</button>
+          <button className="locator-fab-btn" onClick={goNext}><IconArrowDown size={14} /></button>
         </div>
       )}
     </div>
@@ -515,11 +516,11 @@ function PickerPanel({ index, pickerLevel, pickerSeriesId, pickerBooks, resultBo
       <div className="picker-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="picker-handle" />
         <div className="picker-header">
-          {pickerLevel !== 'series' && <button className="btn-back" onClick={onBack}>←</button>}
+          {pickerLevel !== 'series' && <button className="btn-back" onClick={onBack}><IconArrowLeft size={18} /></button>}
           <h2>
             {pickerLevel === 'series' ? '选择书卷' : index.series.find((s) => s.id === pickerSeriesId)?.label || ''}
           </h2>
-          <button className="picker-close" onClick={onClose}>✕</button>
+          <button className="picker-close" onClick={onClose}><IconX size={16} /></button>
         </div>
         <div className="picker-body">
           {pickerLevel === 'series' && visibleSeries.map((s) => (

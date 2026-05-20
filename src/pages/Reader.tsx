@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { fetchBook, fetchIndex, BookData, ChapterData, BookMeta } from '../hooks/useBook'
 import { useSettings, getFontSizePx, Theme, FontSize } from '../store/settings'
+import { IconArrowLeft, IconArrowRight, IconList } from "../components/Icons"
 import { useReading } from '../store/reading'
 
 export default function Reader() {
@@ -265,7 +266,7 @@ export default function Reader() {
         {/* Top bar */}
         <div className="reader-top-bar" onClick={(e) => e.stopPropagation()}>
           <button className="btn-back" onClick={() => navigate(`/book/${sid}/${bidx}`)}>
-            ←
+            <IconArrowLeft size={18} />
           </button>
           <span className="reader-book-title">
             {bookMeta?.title || chapter.title}
@@ -296,7 +297,7 @@ export default function Reader() {
             className="reader-control-btn"
             style={{ textDecoration: 'none' }}
           >
-            ☰
+            <IconList size={18} />
           </Link>
         </div>
       </div>
@@ -334,7 +335,7 @@ export default function Reader() {
             animation: 'tapPulse 0.3s ease-out',
           }}
         >
-          {tapHint === 'left' ? '←' : '→'}
+          {tapHint === 'left' ? <IconArrowLeft size={16} /> : <IconArrowRight size={16} />}
         </div>
       )}
 
@@ -359,7 +360,7 @@ export default function Reader() {
               to={`/reader/${sid}/${bidx}/${cidx - 1}`}
               className="chapter-nav-btn"
             >
-              ← 上一章
+              <IconArrowLeft size={14} /> 上一章
             </Link>
           ) : (
             <span />
@@ -369,7 +370,7 @@ export default function Reader() {
               to={`/reader/${sid}/${bidx}/${cidx + 1}`}
               className="chapter-nav-btn"
             >
-              下一章 →
+              下一章 <IconArrowRight size={14} />
             </Link>
           ) : (
             <span />

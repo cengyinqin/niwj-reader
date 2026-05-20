@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { fetchIndex, BookMeta, SeriesMeta } from '../hooks/useBook'
 import { useSettings } from '../store/settings'
+import { IconArrowLeft } from "../components/Icons"
 
 export default function ChapterList() {
   const { seriesId, bookIdx } = useParams<{ seriesId: string; bookIdx: string }>()
@@ -45,7 +46,7 @@ export default function ChapterList() {
     <div className="app-shell">
       <div className="app-header">
         <button className="btn-back" onClick={() => navigate(`/series/${sid}`)} aria-label="返回">
-          ←
+          <IconArrowLeft size={18} />
         </button>
         <h1>{book.title}</h1>
       </div>

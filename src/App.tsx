@@ -7,13 +7,23 @@ import Reader from './pages/Reader'
 import Search from './pages/Search'
 import Profile from './pages/Profile'
 import { useSettings } from './store/settings'
+import { IconBook, IconSearch, IconUser } from './components/Icons'
 import './styles/app.css'
 
 // ── Global theme sync ──────────────────────────────────
+const THEME_COLORS: Record<string, string> = {
+  light: '#faf8f5',
+  dark: '#1a1a1a',
+  sepia: '#f5f0e8',
+}
+
 function ThemeSync() {
   const theme = useSettings((s) => s.theme)
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
+    // Sync status bar color for mobile
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', THEME_COLORS[theme] || '#faf8f5')
   }, [theme])
   return null
 }
@@ -26,15 +36,15 @@ function TabBar() {
   return (
     <nav className="tab-bar">
       <NavLink to="/" end className="tab-item">
-        <span className="tab-icon">📚</span>
+        <IconBook size={22} />
         <span className="tab-label">文集</span>
       </NavLink>
       <NavLink to="/search" className="tab-item">
-        <span className="tab-icon">🔍</span>
+        <IconSearch size={22} />
         <span className="tab-label">搜索</span>
       </NavLink>
       <NavLink to="/profile" className="tab-item">
-        <span className="tab-icon">👤</span>
+        <IconUser size={22} />
         <span className="tab-label">我的</span>
       </NavLink>
     </nav>

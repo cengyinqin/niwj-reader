@@ -67,6 +67,7 @@ body {
   margin: 0 auto;
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
+  padding-bottom: calc(56px + var(--safe-bottom));
 }
 
 .app-header {
@@ -151,11 +152,6 @@ body {
   font-weight: 600;
   margin-bottom: 4px;
   line-height: 1.4;
-}
-
-.card-subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
 }
 
 .card-meta {
@@ -583,14 +579,6 @@ body {
 }
 .tab-item.active {
   color: var(--accent-dim);
-}
-.tab-icon {
-  /* SVG icons via children */
-}
-
-/* Space for tab bar on pages that show it */
-.app-shell {
-  padding-bottom: calc(56px + var(--safe-bottom));
 }
 
 /* ── Search Page ──────────────────────────── */
@@ -1135,7 +1123,7 @@ body {
   position: fixed;
   bottom: calc(80px + var(--safe-bottom));
   right: calc(16px + var(--safe-right));
-  z-index: 15;
+  z-index: 25;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -184,7 +184,8 @@ function groupByDate(history: HistoryEntry[]): DateGroup[] {
     let label: string
     if (ds === todayStr) label = '今天'
     else if (ds === yesterdayStr) label = '昨天'
-    else label = `${d.getMonth() + 1}月${d.getDate()}日`
+    else if (isThisYear(d)) label = `${d.getMonth() + 1}月${d.getDate()}日`
+    else label = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
 
     const last = groups[groups.length - 1]
     if (last && last.label === label) {
@@ -198,6 +199,10 @@ function groupByDate(history: HistoryEntry[]): DateGroup[] {
 
 function fmtDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function isThisYear(d: Date): boolean {
+  return d.getFullYear() === new Date().getFullYear()
 }
 
 function formatTime(ts: number): string {

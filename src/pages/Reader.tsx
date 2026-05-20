@@ -89,11 +89,13 @@ export default function Reader() {
     }
   }, [bookData, cidx])
 
-  // Save reading progress
+  // Save reading progress (debounced to avoid excessive writes on scroll)
   useEffect(() => {
-    if (chapter && !loading) {
+    if (!chapter || loading) return
+    const timer = setTimeout(() => {
       saveProgress(sid, bidx, cidx, scrollPct)
-    }
+    }, 800)
+    return () => clearTimeout(timer)
   }, [sid, bidx, cidx, scrollPct, chapter, loading, saveProgress])
 
   // Mark chapter read + add to history (skip if from search)

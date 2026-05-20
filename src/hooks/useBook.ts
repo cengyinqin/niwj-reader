@@ -65,10 +65,3 @@ export async function fetchBook(seriesId: number, bookIdx: number): Promise<Book
   return data
 }
 
-export function getChapterContent(
-  bookData: BookData | null,
-  chapterIdx: number
-): ChapterData | null {
-  if (!bookData || chapterIdx < 0 || chapterIdx >= bookData.chapters.length) return null
-  return bookData.chapters[chapterIdx]
-}

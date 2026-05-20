@@ -55,14 +55,14 @@ export default function Search() {
   useEffect(() => { fetchIndex().then(setIndex) }, [])
 
   // ── System back button interception ──────────────────
+  const pushedForLevel = useRef(false)
   useEffect(() => {
-    // Push state when entering deeper level so popstate fires
-    if (level !== 'L1') {
+    if (level !== 'L1' && !pushedForLevel.current) {
       window.history.pushState({ searchLevel: level }, '')
+      pushedForLevel.current = true
     }
-    // When returning to L1, push a clean state (only if we had pushed before)
-    if (level === 'L1' && window.history.state?.searchLevel && window.history.state.searchLevel !== 'L1') {
-      window.history.pushState({ searchLevel: 'L1' }, '')
+    if (level === 'L1') {
+      pushedForLevel.current = false
     }
   }, [level])
 
@@ -180,17 +180,27 @@ export default function Search() {
     setLevel('L2')
   }
 
+  const goL3ReqId = useRef(0)
+
   const goL3 = async (seriesId: number, bookIdx: number, chapterIdx: number, chapterTitle: string) => {
+    const reqId = ++goL3ReqId.current
     setL3({ seriesId, bookIdx, chapterIdx, chapterTitle })
     setL3Loading(true)
     setL3Content('')
     setLevel('L3')
     try {
       const book = await fetchBook(seriesId, bookIdx)
+      // Ignore stale response from a previous rapid click
+      if (reqId !== goL3ReqId.current) return
       const ch = book.chapters[chapterIdx]
       setL3Content(ch?.content || '')
-    } catch { setL3Content('') }
-    finally { setL3Loading(false) }
+      setL3Loading(false)
+    } catch {
+      if (reqId === goL3ReqId.current) {
+        setL3Content('')
+        setL3Loading(false)
+      }
+    }
   }
 
   const goBack = () => {

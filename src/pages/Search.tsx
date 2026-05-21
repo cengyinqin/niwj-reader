@@ -41,10 +41,8 @@ export default function Search() {
   const [l3Content, setL3Content] = useState<string>('')
   const [l3Loading, setL3Loading] = useState(false)
 
-  // Picker
+  // Picker — flat list of all books, ordered by series then book index
   const [showPicker, setShowPicker] = useState(false)
-  const [pickerLevel, setPickerLevel] = useState<'series' | 'books'>('series')
-  const [pickerSeriesId, setPickerSeriesId] = useState(0)
   const [pickerBooks, setPickerBooks] = useState<PickerBook[]>([])
   const levelRef = useRef(level)
   levelRef.current = level
@@ -164,16 +162,6 @@ export default function Search() {
     return book.chapters
   }, [q, l2, index])
 
-  // Books that have search results (for filtering picker)
-  const resultBooks = useMemo(() => {
-    if (!q || !searchData) return new Set<string>()
-    const set = new Set<string>()
-    for (const r of allResults) {
-      set.add(`${r.s}-${r.b}`)
-    }
-    return set
-  }, [allResults, q, searchData])
-
   // ── Handlers ─────────────────────────────────────────
   const goL2 = (seriesId: number, bookIdx: number, bookTitle: string) => {
     setL2({ seriesId, bookIdx, bookTitle })
@@ -212,45 +200,22 @@ export default function Search() {
     }
   }
 
-  // ── Picker: only show books with results ──────────────
+  // ── Picker: flat list of all books ordered by series → book index ──
   const openPicker = () => {
     if (!index) return
-    if (q && resultBooks.size > 0) {
-      // Filter: show series with matching books
-      setPickerLevel('series')
-      setShowPicker(true)
-    } else if (!q) {
-      // Browse all
-      setPickerLevel('series')
-      setShowPicker(true)
-    } else {
-      // Has query but no results — show all anyway
-      setPickerLevel('series')
-      setShowPicker(true)
-    }
-  }
-
-  const pickerSelectSeries = (seriesId: number) => {
-    if (!index) return
-    const s = index.series.find((x) => x.id === seriesId)
-    if (!s) return
-    setPickerSeriesId(seriesId)
-    // Filter books to only those with matches (if query exists)
-    let books = s.books.map((b, i) => ({ seriesId, bookIdx: i, title: b.title, chapterCount: b.chapterCount }))
-    if (q && resultBooks.size > 0) {
-      books = books.filter((b) => resultBooks.has(`${seriesId}-${b.bookIdx}`))
+    const books: PickerBook[] = []
+    for (const s of index.series) {
+      s.books.forEach((b, i) => {
+        books.push({ seriesId: s.id, bookIdx: i, title: b.title, chapterCount: b.chapterCount })
+      })
     }
     setPickerBooks(books)
-    setPickerLevel('books')
+    setShowPicker(true)
   }
 
   const pickerSelectBook = (book: PickerBook) => {
     goL2(book.seriesId, book.bookIdx, book.title)
     setShowPicker(false)
-  }
-
-  const pickerBack = () => {
-    if (pickerLevel === 'books') setPickerLevel('series')
   }
 
   // ── Render ───────────────────────────────────────────
@@ -383,16 +348,9 @@ export default function Search() {
       {/* Picker */}
       {showPicker && index && (
         <PickerPanel
-          index={index}
-          pickerLevel={pickerLevel}
-          pickerSeriesId={pickerSeriesId}
           pickerBooks={pickerBooks}
-          resultBooks={resultBooks}
-          hasQuery={!!q}
           onClose={() => setShowPicker(false)}
-          onSelectSeries={pickerSelectSeries}
           onSelectBook={pickerSelectBook}
-          onBack={pickerBack}
         />
       )}
     </div>
@@ -559,51 +517,38 @@ function HighlightedText({ paragraphs, keyword, markRefs }: {
 }
 
 // ── Picker Panel ────────────────────────────────────────
-function PickerPanel({ index, pickerLevel, pickerSeriesId, pickerBooks, resultBooks, hasQuery, onClose, onSelectSeries, onSelectBook, onBack }: {
-  index: IndexData; pickerLevel: string; pickerSeriesId: number; pickerBooks: PickerBook[]
-  resultBooks: Set<string>; hasQuery: boolean
-  onClose: () => void; onSelectSeries: (id: number) => void; onSelectBook: (b: PickerBook) => void; onBack: () => void
+function PickerPanel({ pickerBooks, onClose, onSelectBook }: {
+  pickerBooks: PickerBook[]
+  onClose: () => void; onSelectBook: (b: PickerBook) => void
 }) {
-  const seriesLabels: Record<number, string> = { 1: '早期著作 1922–1934', 2: '中期著作 1935–1942', 3: '晚期著作 1943–1952' }
+  const seriesLabels: Record<number, string> = { 1: '早期著作', 2: '中期著作', 3: '晚期著作' }
 
-  // Filter series: only show those with matching books (when query active)
-  const visibleSeries = useMemo(() => {
-    if (!hasQuery || resultBooks.size === 0) return index.series
-    const ids = new Set<number>()
-    for (const key of resultBooks) {
-      ids.add(parseInt(key.split('-')[0], 10))
-    }
-    return index.series.filter((s) => ids.has(s.id))
-  }, [index, resultBooks, hasQuery])
+  let lastSeriesId = -1
 
   return (
     <div className="picker-overlay" onClick={onClose}>
       <div className="picker-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="picker-handle" />
         <div className="picker-header">
-          {pickerLevel !== 'series' && <button className="btn-back" onClick={onBack}><IconArrowLeft size={18} /></button>}
-          <h2>
-            {pickerLevel === 'series' ? '选择书卷' : index.series.find((s) => s.id === pickerSeriesId)?.label || ''}
-          </h2>
+          <h2>选择书卷</h2>
           <button className="picker-close" onClick={onClose}><IconX size={16} /></button>
         </div>
         <div className="picker-body">
-          {pickerLevel === 'series' && visibleSeries.map((s) => (
-            <button key={s.id} className="picker-series-card" onClick={() => onSelectSeries(s.id)}>
-              <div className="picker-series-title">{s.label}</div>
-              <div className="picker-series-desc">{seriesLabels[s.id] || ''}</div>
-              <div className="picker-series-count">{s.books.length} 册</div>
-            </button>
-          ))}
-          {pickerLevel === 'books' && pickerBooks.map((b) => (
-            <button key={b.bookIdx} className="picker-book-item" onClick={() => onSelectBook(b)}>
-              <span className="picker-book-title">{b.title}</span>
-              <span className="picker-book-count">{b.chapterCount} 章</span>
-            </button>
-          ))}
-          {pickerLevel === 'books' && pickerBooks.length === 0 && (
-            <div className="empty-state"><p>无匹配书卷</p></div>
-          )}
+          {pickerBooks.map((b) => {
+            const showHeader = b.seriesId !== lastSeriesId
+            lastSeriesId = b.seriesId
+            return (
+              <div key={`${b.seriesId}-${b.bookIdx}`}>
+                {showHeader && (
+                  <div className="picker-series-header">{seriesLabels[b.seriesId] || ''} — {b.seriesId === 1 ? '1922–1934' : b.seriesId === 2 ? '1935–1942' : '1943–1952'}</div>
+                )}
+                <button className="picker-book-item" onClick={() => onSelectBook(b)}>
+                  <span className="picker-book-title">{b.title}</span>
+                  <span className="picker-book-count">{b.chapterCount} 章</span>
+                </button>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

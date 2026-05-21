@@ -46,6 +46,8 @@ cd android && ./gradlew assembleDebug
 - 返回键：pushState 仅推一条 + popstate/Capacitor backButton 双监听
 - `goBack`: L3 检测 l2 是否存在，不存在直接回 L1（防空白页）
 
+书卷选择器（PickerPanel）：扁平列表，所有书卷按系列顺序展示（早期→中期→晚期），每个系列内按书序排列，带系列分组标题。
+
 ## Reader 核心逻辑
 
 - 阅读计时：setInterval(1s) + visibilityState 控制，30s 批量写入

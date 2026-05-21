@@ -1011,6 +1011,13 @@ body {
   margin-top: 6px;
 }
 
+.picker-series-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 8px 4px 4px;
+}
+
 .picker-book-item {
   display: flex;
   align-items: center;
